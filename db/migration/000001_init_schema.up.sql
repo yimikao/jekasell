@@ -11,6 +11,7 @@ CREATE TABLE "products" (
     "name" varchar NOT NULL,
     "quantity" bigint NOT NULL,
     "description" varchar NOT NULL,
+    "avatar_url" varchar NULL,
     "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 

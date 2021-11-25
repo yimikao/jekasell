@@ -2,9 +2,10 @@
 INSERT into products (
     name,
     quantity,
-    description
+    description,
+    avatar_url
 ) VALUES (
-    $1, $2, $3
+    $1, $2, $3, $4
 ) RETURNING *;
 
 -- name: GetProduct :one

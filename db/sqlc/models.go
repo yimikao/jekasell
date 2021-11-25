@@ -3,6 +3,7 @@
 package db
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -20,11 +21,12 @@ type OrderProduct struct {
 }
 
 type Product struct {
-	ID          int64     `json:"id"`
-	Name        string    `json:"name"`
-	Quantity    int64     `json:"quantity"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          int64          `json:"id"`
+	Name        string         `json:"name"`
+	Quantity    int64          `json:"quantity"`
+	Description string         `json:"description"`
+	AvatarUrl   sql.NullString `json:"avatar_url"`
+	CreatedAt   time.Time      `json:"created_at"`
 }
 
 type User struct {

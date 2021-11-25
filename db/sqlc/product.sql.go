@@ -5,32 +5,41 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createProduct = `-- name: CreateProduct :one
 INSERT into products (
     name,
     quantity,
-    description
+    description,
+    avatar_url
 ) VALUES (
-    $1, $2, $3
-) RETURNING id, name, quantity, description, created_at
+    $1, $2, $3, $4
+) RETURNING id, name, quantity, description, avatar_url, created_at
 `
 
 type CreateProductParams struct {
-	Name        string `json:"name"`
-	Quantity    int64  `json:"quantity"`
-	Description string `json:"description"`
+	Name        string         `json:"name"`
+	Quantity    int64          `json:"quantity"`
+	Description string         `json:"description"`
+	AvatarUrl   sql.NullString `json:"avatar_url"`
 }
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
-	row := q.db.QueryRowContext(ctx, createProduct, arg.Name, arg.Quantity, arg.Description)
+	row := q.db.QueryRowContext(ctx, createProduct,
+		arg.Name,
+		arg.Quantity,
+		arg.Description,
+		arg.AvatarUrl,
+	)
 	var i Product
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Quantity,
 		&i.Description,
+		&i.AvatarUrl,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -47,7 +56,7 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int64) error {
 }
 
 const getProduct = `-- name: GetProduct :one
-SELECT id, name, quantity, description, created_at FROM products
+SELECT id, name, quantity, description, avatar_url, created_at FROM products
 WHERE id = $1
 `
 
@@ -59,13 +68,14 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
 		&i.Name,
 		&i.Quantity,
 		&i.Description,
+		&i.AvatarUrl,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listProducts = `-- name: ListProducts :many
-SELECT id, name, quantity, description, created_at FROM products
+SELECT id, name, quantity, description, avatar_url, created_at FROM products
 ORDER BY name
 `
 
@@ -83,6 +93,7 @@ func (q *Queries) ListProducts(ctx context.Context) ([]Product, error) {
 			&i.Name,
 			&i.Quantity,
 			&i.Description,
+			&i.AvatarUrl,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -102,7 +113,7 @@ const updateProduct = `-- name: UpdateProduct :one
 UPDATE products
 SET quantity = $2
 WHERE id = $1
-RETURNING id, name, quantity, description, created_at
+RETURNING id, name, quantity, description, avatar_url, created_at
 `
 
 type UpdateProductParams struct {
@@ -118,6 +129,7 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		&i.Name,
 		&i.Quantity,
 		&i.Description,
+		&i.AvatarUrl,
 		&i.CreatedAt,
 	)
 	return i, err
