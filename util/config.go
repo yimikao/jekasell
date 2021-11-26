@@ -3,9 +3,9 @@ package util
 import "github.com/spf13/viper"
 
 type Config struct {
-	DBDriver   string
-	DBUrl      string
-	ServerAddr string
+	DBDriver   string `mapstructure:"DB_DRIVER"`
+	DBUrl      string `mapstructure:"DB_SOURCE"`
+	ServerAddr string `mapstructure:"SERVER_ADDR"`
 }
 
 //Read config from file or env vars.
