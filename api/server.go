@@ -13,6 +13,7 @@ type Server struct {
 func NewServer(s db.Store) (svr *Server) {
 	svr = &Server{store: s}
 	r := gin.Default()
+	r.SetTrustedProxies(nil)
 
 	r.POST("/users", svr.CreateUser)
 	svr.router = r
