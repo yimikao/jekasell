@@ -16,6 +16,7 @@ func NewServer(s db.Store) (svr *Server) {
 	r.SetTrustedProxies(nil)
 
 	r.POST("/users", svr.CreateUser)
+	r.GET("/users", svr.ListUsers)
 	r.GET("/users/:id", svr.GetUser)
 	svr.router = r
 	return

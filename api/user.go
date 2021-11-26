@@ -55,3 +55,13 @@ func (s *Server) GetUser(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, u)
 }
+
+func (s *Server) ListUsers(ctx *gin.Context) {
+	us, err := s.store.ListUsers(ctx)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	ctx.JSON(http.StatusOK, us)
+}
