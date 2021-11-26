@@ -9,6 +9,7 @@ import (
 	"github.com/jekasell/api"
 	db "github.com/jekasell/db/sqlc"
 	"github.com/jekasell/util"
+	_ "github.com/lib/pq"
 )
 
 func main() {
