@@ -17,6 +17,7 @@ func NewServer(s db.Store) (svr *Server) {
 
 	r.POST("/users", svr.CreateUser)
 	r.GET("/users", svr.ListUsers)
+	r.PUT("/users", svr.UpdateUser)
 	r.GET("/users/:id", svr.GetUser)
 	svr.router = r
 	return
