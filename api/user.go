@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -50,7 +51,11 @@ func (s *Server) GetUser(ctx *gin.Context) {
 
 	u, err := s.store.GetUser(ctx, int64(req.ID))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, err.Error())
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	ctx.JSON(http.StatusOK, u)
@@ -60,7 +65,7 @@ func (s *Server) ListUsers(ctx *gin.Context) {
 	us, err := s.store.ListUsers(ctx)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	ctx.JSON(http.StatusOK, us)
@@ -83,7 +88,7 @@ func (s *Server) UpdateUser(ctx *gin.Context) {
 	}
 	u, err := s.store.UpdateUser(ctx, args)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	ctx.JSON(http.StatusOK, u)
@@ -100,7 +105,11 @@ func (s *Server) DeleteUser(ctx *gin.Context) {
 
 	_, err := s.store.GetUser(ctx, int64(req.ID))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		if err != sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, err.Error())
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
