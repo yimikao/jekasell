@@ -67,7 +67,7 @@ func (s *Server) ListUsers(ctx *gin.Context) {
 }
 
 type updateUserRequest struct {
-	ID       int64  `json"id"`
+	ID       int64  `json:"id"`
 	Password string `json:"password"`
 }
 
@@ -87,4 +87,29 @@ func (s *Server) UpdateUser(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, u)
+}
+
+func (s *Server) DeleteUser(ctx *gin.Context) {
+
+	var req getUserRequest
+
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	_, err := s.store.GetUser(ctx, int64(req.ID))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = s.store.DeleteUser(ctx, req.ID)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, gin.H{"messages": "User deleted successfully!"})
 }
