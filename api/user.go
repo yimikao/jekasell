@@ -65,3 +65,26 @@ func (s *Server) ListUsers(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, us)
 }
+
+type updateUserRequest struct {
+	ID       int64  `json"id"`
+	Password string `json:"password"`
+}
+
+func (s *Server) UpdateUser(ctx *gin.Context) {
+	var req updateUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	args := db.UpdateUserParams{
+		ID:       req.ID,
+		Password: req.Password,
+	}
+	u, err := s.store.UpdateUser(ctx, args)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	ctx.JSON(http.StatusOK, u)
+}
