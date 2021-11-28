@@ -5,32 +5,45 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
 INSERT into users (
     name,
     email,
-    password
+    password,
+    phone_number,
+    address
 ) VALUES (
-    $1, $2, $3
-) RETURNING id, name, email, password, created_at
+    $1, $2, $3, $4, $5
+) RETURNING id, name, email, password, phone_number, address, created_at
 `
 
 type CreateUserParams struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name        string         `json:"name"`
+	Email       string         `json:"email"`
+	Password    string         `json:"password"`
+	PhoneNumber sql.NullString `json:"phone_number"`
+	Address     sql.NullString `json:"address"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Name, arg.Email, arg.Password)
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.Name,
+		arg.Email,
+		arg.Password,
+		arg.PhoneNumber,
+		arg.Address,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Email,
 		&i.Password,
+		&i.PhoneNumber,
+		&i.Address,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -47,7 +60,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, name, email, password, created_at FROM users 
+SELECT id, name, email, password, phone_number, address, created_at FROM users 
 WHERE id = $1
 `
 
@@ -59,13 +72,15 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 		&i.Name,
 		&i.Email,
 		&i.Password,
+		&i.PhoneNumber,
+		&i.Address,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, name, email, password, created_at FROM users
+SELECT id, name, email, password, phone_number, address, created_at FROM users
 ORDER BY name
 `
 
@@ -83,6 +98,8 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 			&i.Name,
 			&i.Email,
 			&i.Password,
+			&i.PhoneNumber,
+			&i.Address,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -102,7 +119,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET password = $2
 WHERE id = $1
-RETURNING id, name, email, password, created_at
+RETURNING id, name, email, password, phone_number, address, created_at
 `
 
 type UpdateUserParams struct {
@@ -118,6 +135,8 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Name,
 		&i.Email,
 		&i.Password,
+		&i.PhoneNumber,
+		&i.Address,
 		&i.CreatedAt,
 	)
 	return i, err

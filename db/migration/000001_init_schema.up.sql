@@ -3,6 +3,8 @@ CREATE TABLE "users" (
     "name" varchar NOT NULL,
     "email" varchar NOT NULL,
     "password" varchar NOT NULL,
+    "phone_number" varchar NULL,
+    "address" varchar NULL,
     "created_at" timestamptz NOT NULL DEFAULT (now()) 
 );
 
@@ -11,6 +13,7 @@ CREATE TABLE "products" (
     "name" varchar NOT NULL,
     "quantity" bigint NOT NULL,
     "description" varchar NOT NULL,
+    "seller_id" bigint NOT NULL,
     "avatar_url" varchar NULL,
     "created_at" timestamptz NOT NULL DEFAULT (now())
 );

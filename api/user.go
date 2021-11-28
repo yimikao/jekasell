@@ -9,9 +9,11 @@ import (
 )
 
 type createUserRequest struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	Password    string `json:"password"`
+	PhoneNumber string `json:"phone"`
+	Address     string `json:"address"`
 }
 
 func (s *Server) CreateUser(ctx *gin.Context) {
@@ -22,9 +24,11 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 	}
 
 	arg := db.CreateUserParams{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: req.Password,
+		Name:        req.Name,
+		Email:       req.Email,
+		Password:    req.Password,
+		PhoneNumber: sql.NullString{String: req.PhoneNumber, Valid: true},
+		Address:     sql.NullString{String: req.Address, Valid: true},
 	}
 
 	createdUser, err := s.store.CreateUser(ctx, arg)
