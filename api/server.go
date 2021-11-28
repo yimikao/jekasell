@@ -20,6 +20,12 @@ func NewServer(s db.Store) (svr *Server) {
 	r.PUT("/users", svr.UpdateUser)
 	r.GET("/users/:id", svr.GetUser)
 	r.DELETE("/users/:id", svr.DeleteUser)
+
+	r.POST("/products", svr.CreateProduct)
+	r.GET("/products", svr.ListProducts)
+	r.PUT("/products", svr.UpdateProduct)
+	r.GET("/products/:id", svr.GetProduct)
+	r.DELETE("/products/:id", svr.DeleteProduct)
 	svr.router = r
 	return
 }
