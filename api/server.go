@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	db "github.com/jekasell/db/sqlc"
 )
@@ -15,6 +17,12 @@ func NewServer(s db.Store) (svr *Server) {
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 
+	r.GET("", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "welcome to jekasell"})
+	})
+	r.GET("/auth/signup")
+	r.GET("/auth/signin")
+
 	r.POST("/users", svr.CreateUser)
 	r.GET("/users", svr.ListUsers)
 	r.PUT("/users", svr.UpdateUser)
@@ -26,6 +34,12 @@ func NewServer(s db.Store) (svr *Server) {
 	r.PUT("/products", svr.UpdateProduct)
 	r.GET("/products/:id", svr.GetProduct)
 	r.DELETE("/products/:id", svr.DeleteProduct)
+
+	r.POST("/orders", svr.CreateOrder)
+	r.GET("/orders", svr.ListOrders)
+	// r.PUT("/orders", svr.UpdateProduct)
+	r.GET("/orders/:id", svr.GetOrder)
+	// r.DELETE("/orders/:id", svr.DeleteProduct)
 	svr.router = r
 	return
 }
