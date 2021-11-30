@@ -1,19 +1,28 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jekasell/api/token"
 	db "github.com/jekasell/db/sqlc"
+	"github.com/jekasell/util"
 )
 
 type Server struct {
-	store  db.Store
-	router *gin.Engine
+	config     util.Config
+	store      db.Store
+	router     *gin.Engine
+	tokenMaker token.Maker
 }
 
-func NewServer(s db.Store) (svr *Server) {
-	svr = &Server{store: s}
+func NewServer(cfg util.Config, s db.Store) (svr *Server, err error) {
+	tm, err := token.NewPasetoMaker(cfg.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker: %w", err)
+	}
+	svr = &Server{store: s, tokenMaker: tm}
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 
