@@ -9,7 +9,7 @@ import (
 )
 
 type getProductRequest struct {
-	ID int64 `uri:"id" binding:'required,min=1"`
+	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
 func (s *Server) GetProduct(ctx *gin.Context) {

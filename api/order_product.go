@@ -8,7 +8,7 @@ import (
 )
 
 type createOrderProductRequest struct {
-	OrderID   int64 `json:"product_id" binding:"required,min=1"`
+	OrderID   int64 `json:"order_id" binding:"required,min=1"`
 	ProductID int64 `json:"product_id" binding:"required,min=1"`
 }
 
@@ -32,7 +32,7 @@ func (s *Server) CreateOrderProduct(ctx *gin.Context) {
 }
 
 type listOrderProductRequest struct {
-	OrderID   int64 `json:"product_id" binding:"required,min=1"`
+	OrderID   int64 `json:"order_id" binding:"required,min=1"`
 	ProductID int64 `json:"product_id" binding:"required,min=1"`
 }
 
