@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/jekasell/db/sqlc"
@@ -16,6 +17,23 @@ type createUserRequest struct {
 	Address     string `json:"address"`
 }
 
+type createUserResponse struct {
+	Name        string    `json:"name"`
+	Email       string    `json:"email"`
+	PhoneNumber string    `json:"phone_number"`
+	Address     string    `json:"address"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+func NewUserResponse(user db.User) createUserResponse {
+	return createUserResponse{
+		Name:        user.Name,
+		Email:       user.Email,
+		PhoneNumber: user.PhoneNumber.String,
+		Address:     user.Address.String,
+		CreatedAt:   user.CreatedAt,
+	}
+}
 func (s *Server) CreateUser(ctx *gin.Context) {
 	var req createUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -37,7 +55,9 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	ctx.JSON(http.StatusCreated, createdUser)
+
+	rsp := NewUserResponse(createdUser)
+	ctx.JSON(http.StatusCreated, rsp)
 
 }
 
@@ -125,4 +145,45 @@ func (s *Server) DeleteUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusNoContent, gin.H{"messages": "User deleted successfully!"})
+}
+
+type loginUserRequest struct {
+	Email    string `json:"email"  binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+type loginUserResponse struct {
+	AccessToken string             `json:"access_token"`
+	User        createUserResponse `json:"user"`
+}
+
+func (s *Server) LoginUser(ctx *gin.Context) {
+	var req loginUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	u, err := s.store.GetUserByEmail(ctx, req.Email)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, err.Error())
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	if u.Password != req.Password {
+		ctx.JSON(http.StatusUnauthorized, err.Error())
+		return
+	}
+	accessToken, err := s.tokenMaker.CreateToken(u.Name, s.config.AccessTokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	rsp := loginUserResponse{
+		AccessToken: accessToken,
+		User:        NewUserResponse(u),
+	}
+	ctx.JSON(http.StatusOK, rsp)
 }

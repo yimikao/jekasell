@@ -23,6 +23,16 @@ func NewServer(cfg util.Config, s db.Store) (svr *Server, err error) {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
 	svr = &Server{store: s, tokenMaker: tm}
+	svr.setupRouter()
+
+	return
+}
+
+func (s *Server) Start(addr string) error {
+	return s.router.Run(addr)
+}
+
+func (svr *Server) setupRouter() {
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 
@@ -30,7 +40,7 @@ func NewServer(cfg util.Config, s db.Store) (svr *Server, err error) {
 		c.JSON(http.StatusOK, gin.H{"message": "welcome to jekasell"})
 	})
 	r.GET("/auth/signup")
-	r.GET("/auth/signin")
+	r.GET("/users/signin", svr.LoginUser)
 
 	r.POST("/users", svr.CreateUser)
 	r.GET("/users", svr.ListUsers)
@@ -51,9 +61,4 @@ func NewServer(cfg util.Config, s db.Store) (svr *Server, err error) {
 	r.POST("/orderproducts", svr.CreateOrderProduct)
 	r.GET("/orderproducts", svr.ListOrderProducts)
 	svr.router = r
-	return
-}
-
-func (s *Server) Start(addr string) error {
-	return s.router.Run(addr)
 }

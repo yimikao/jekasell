@@ -26,7 +26,15 @@ func main() {
 		os.Exit(1)
 	}
 	str := db.NewStore(conn)
-	svr := api.NewServer(str)
+	svr, err := api.NewServer(cfg, str)
+
+	if err != nil {
+		log.Fatal("cannot create server:", err)
+	}
 
 	log.Fatal(svr.Start(cfg.ServerAddr))
+}
+
+type Man struct {
+	name string
 }
